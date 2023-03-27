@@ -3,6 +3,7 @@
 import pandas as pd
 import ast
 import openai
+import os
 
 # 我有重新命名 csv 檔名稱，所以爬蟲儲存檔案時的名稱可能要再修改!
 
@@ -11,13 +12,16 @@ import openai
 # 建立所有課程檔案名稱 list，以存取已爬課程
 course_name_list = []
 for i in range(10):
-    course_name_list.append("course" + str(i + 1))
+    course_name_list.append("course" + str(i + 1) + ".csv")
 
-!mkdir temp
+if os.path.exists('./temp') != True: 
+    !mkdir temp
+
 path_list = []
 for i in range(10):
     path_list.append(
-        "./temp/" + course_name_list[i] + ".csv"
+        os.path.join('./temp', course_name_list[i])
+        # "./temp/" + course_name_list[i] + ".csv"
     )
 
 course_total = pd.read_csv(
