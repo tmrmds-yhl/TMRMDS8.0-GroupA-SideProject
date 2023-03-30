@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import datetime
 
-search = '機器學習'
-
+search = '數據分析'
+# test
 def collect_comments(main_comment, sub_comment, id):
     page = 0
     title = []
