@@ -78,7 +78,7 @@ def course_searching(search):
             viewers.append(resp_courses["data"]['courseData']['products'][i]["numSoldTickets"])
             pricings.append(resp_courses["data"]['courseData']['products'][i]["price"])
     else:
-        for i in range(courseN):
+        for i in range(courseNum):
             course_id.append(resp_courses["data"]['courseData']['products'][i]["_id"])
             course_name.append(resp_courses["data"]['courseData']['products'][i]["title"])
             ratings.append(resp_courses["data"]['courseData']['products'][i]["averageRating"])
