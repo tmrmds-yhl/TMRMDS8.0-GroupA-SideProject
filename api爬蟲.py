@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import datetime
 
-search = '數據分析'
-# test
+search = '英文'
+
 def collect_comments(main_comment, sub_comment, id):
     page = 0
     title = []
@@ -51,15 +51,41 @@ def course_searching(search):
     video_length=[]
     viewers=[]
     pricings=[]
+    tries = courseN//100
+    courseNum = courseN
 
-    for i in range(courseN):
-        course_id.append(resp_courses["data"]['courseData']['products'][i]["_id"])
-        course_name.append(resp_courses["data"]['courseData']['products'][i]["title"])
-        ratings.append(resp_courses["data"]['courseData']['products'][i]["averageRating"])
-        commenters.append(resp_courses["data"]['courseData']['products'][i]["numRating"])
-        video_length.append(resp_courses["data"]['courseData']['products'][i]["totalVideoLengthInSeconds"])
-        viewers.append(resp_courses["data"]['courseData']['products'][i]["numSoldTickets"])
-        pricings.append(resp_courses["data"]['courseData']['products'][i]["price"])
+    if courseNum>100:
+        for times in range(tries):
+            url = f'https://api.hahow.in/api/products/search?limit=100&query={search}&filter=PUBLISHED&page={times}'
+            resp_courses = requests.get(url, headers=headers).json()
+            for i in range(100):
+                course_id.append(resp_courses["data"]['courseData']['products'][i]["_id"])
+                course_name.append(resp_courses["data"]['courseData']['products'][i]["title"])
+                ratings.append(resp_courses["data"]['courseData']['products'][i]["averageRating"])
+                commenters.append(resp_courses["data"]['courseData']['products'][i]["numRating"])
+                video_length.append(str(round(int(resp_courses["data"]['courseData']['products'][i]["totalVideoLengthInSeconds"])/60)))
+                viewers.append(resp_courses["data"]['courseData']['products'][i]["numSoldTickets"])
+                pricings.append(resp_courses["data"]['courseData']['products'][i]["price"])
+            courseNum -= 100
+        url = f'https://api.hahow.in/api/products/search?limit=100&query={search}&filter=PUBLISHED&page={tries}'
+        resp_courses = requests.get(url, headers=headers).json()
+        for i in range(courseNum):
+            course_id.append(resp_courses["data"]['courseData']['products'][i]["_id"])
+            course_name.append(resp_courses["data"]['courseData']['products'][i]["title"])
+            ratings.append(resp_courses["data"]['courseData']['products'][i]["averageRating"])
+            commenters.append(resp_courses["data"]['courseData']['products'][i]["numRating"])
+            video_length.append(str(round(int(resp_courses["data"]['courseData']['products'][i]["totalVideoLengthInSeconds"])/60)))
+            viewers.append(resp_courses["data"]['courseData']['products'][i]["numSoldTickets"])
+            pricings.append(resp_courses["data"]['courseData']['products'][i]["price"])
+    else:
+        for i in range(courseN):
+            course_id.append(resp_courses["data"]['courseData']['products'][i]["_id"])
+            course_name.append(resp_courses["data"]['courseData']['products'][i]["title"])
+            ratings.append(resp_courses["data"]['courseData']['products'][i]["averageRating"])
+            commenters.append(resp_courses["data"]['courseData']['products'][i]["numRating"])
+            video_length.append(str(round(int(resp_courses["data"]['courseData']['products'][i]["totalVideoLengthInSeconds"])/60)))
+            viewers.append(resp_courses["data"]['courseData']['products'][i]["numSoldTickets"])
+            pricings.append(resp_courses["data"]['courseData']['products'][i]["price"])
 
     main_comment = []
     sub_comment = []
@@ -76,11 +102,8 @@ def course_searching(search):
         "價格":pricings,
         "評論標題":main_comment,
         "評論內容":sub_comment})
+
     course.to_csv(f'Hahow{search}課程.csv', encoding = 'UTF-8-sig')
 
 if __name__ == '__main__':
     course_searching(search)
-
-
-
-
