@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import datetime
 
-search = '機器學習'
+search = '後製剪輯'
 
 def collect_comments(main_comment, sub_comment, will_learn, id):
     page = 0
@@ -22,7 +22,10 @@ def collect_comments(main_comment, sub_comment, will_learn, id):
                                 'Chrome/59.0.3071.115 Safari/537.36'}
     resp_feedbacks = requests.get(url, headers=headers).json()
 
-    will_learn.append(resp_feedbacks["willLearn"])
+    try:
+        will_learn.append(resp_feedbacks["willLearn"])
+    except:
+        will_learn.append('')
 
     while True:
         url = f'https://api.hahow.in/api/courses/{id}/feedbacks?limit=30&page={page}'
@@ -100,6 +103,7 @@ def course_searching(search):
 
     for i in range(courseN):
         collect_comments(main_comment, sub_comment, will_learn, course_id[i])
+        print(course_id[i])
 
     course=pd.DataFrame({
         "課程名稱":course_name,
