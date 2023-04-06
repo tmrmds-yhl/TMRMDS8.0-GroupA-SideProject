@@ -7,7 +7,13 @@ import pandas as pd
 import re
 import ast
 import openai
-from st_aggrid import AgGrid, DataReturnMode, GridUpdateMode, GridOptionsBuilder
+from st_aggrid import (
+    AgGrid,
+    DataReturnMode,
+    GridUpdateMode,
+    GridOptionsBuilder,
+    ColumnsAutoSizeMode,
+)
 
 
 html_temp = """
@@ -241,9 +247,8 @@ def main():
         df3 = df2.drop(dele)
 
         # attach ChatGPT
-        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
+        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
         df3 = df3.reset_index()
-        st.write(df3)
         msg = "現在有%d門課程如下：" % (df3.shape[0])
         for iCourse in range(df3.shape[0]):
             msg += str(
@@ -259,20 +264,45 @@ def main():
 
         comment_content = response.choices[0].message.content
         comment_content = comment_content.split("\n")
-        # comment_content = ["推薦順序：第3門、第1門、第2門。", "","原因：","1. 第3門課程評價最高，且學員反應課程內容豐富且實用性高，對工作有很大的幫助，教學內容從理論到實踐都很完整，物超所值。","2. 第1門課程評價次高，且適合初學者，能夠讓學員對Azure操作有基礎認識，內容清晰易懂，且完整且詳細，又入門機器學習。","3. 第2門課程評價稍低，但仍有不少學員認為是一個很棒的入門課程，內容豐富多元，對初學者來說有些部分可能會覺得深奧，但整體而言是很棒的課程。"]
-        # st.write(comment_content)
-        st.success(comment_content[0])  # 推薦順序: ...
-        reason = [comment_content[3], comment_content[4], comment_content[5]]
+        # comment_content = [
+        #     "推薦順序：第3門、第1門、第2門。",
+        #     "",
+        #     "原因：",
+        #     "1. 第3門課程評價最高，且學員反應課程內容豐富且實用性高，對工作有很大的幫助，教學內容從理論到實踐都很完整，物超所值。",
+        #     "2. 第1門課程評價次高，且適合初學者，能夠讓學員對Azure操作有基礎認識，內容清晰易懂，且完整且詳細，又入門機器學習。",
+        #     "3. 第2門課程評價稍低，但仍有不少學員認為是一個很棒的入門課程，內容豐富多元，對初學者來說有些部分可能會覺得深奧，但整體而言是很棒的課程。",
+        # ]
+        comment_content = list(filter(None, comment_content))  # Trim string list
 
         # 篩選出符合條件的課程，利用課程的 index
         suggests = [int(s) - 1 for s in re.findall(r"\d+", comment_content[0])]
         df3 = df3.iloc[suggests, :]
-        advices = st.selectbox("推薦的課程", (df3["課程名稱"].to_numpy()))  # 讀進df當中的課程名稱當作選項
-
         # 重置 df3 的 index，並刪除用不到的欄位
         df3 = df3.reset_index()
         del df3["index"]
         del df3["Unnamed: 0"]
+
+        comment_content[0] = (
+            comment_content[0]
+            .replace("第{}門".format(suggests[0] + 1), "\n\n" + df3["課程名稱"][0])
+            .replace("第{}門".format(suggests[1] + 1), "\n\n" + df3["課程名稱"][1])
+            .replace("第{}門".format(suggests[2] + 1), "\n\n" + df3["課程名稱"][2])
+        )
+
+        st.success(comment_content[0])  # 推薦順序: ...
+        reason = [
+            comment_content[-3].replace(
+                "第{}門".format(suggests[0] + 1), df3["課程名稱"][0] + "：\n\n"
+            ),
+            comment_content[-2].replace(
+                "第{}門".format(suggests[1] + 1), df3["課程名稱"][1] + "：\n\n"
+            ),
+            comment_content[-1].replace(
+                "第{}門".format(suggests[2] + 1), df3["課程名稱"][2] + "：\n\n"
+            ),
+        ]
+
+        advices = st.selectbox("推薦的課程", (df3["課程名稱"].to_numpy()))  # 讀進df當中的課程名稱當作選項
 
         for i in range(0, len(df3.index)):
             # st.write(df3)
@@ -286,7 +316,7 @@ def main():
                 # 有課程評價 len > 1
                 if len(df3["評價標題的結論"]) > 1:
                     summary = ast.literal_eval(df3["評價標題的結論"][i])
-                    for j in suggests:
+                    for j in range(3):
                         course_comment.append(summary[j])
                     suggestion_dict = {"課程評價": course_comment}
                     suggestion_df = pd.DataFrame.from_dict(suggestion_dict)
@@ -301,7 +331,11 @@ def main():
                         autoHeight=True,
                     )
                     grid_options = options_builder.build()
-                    grid_return = AgGrid(suggestion_df, grid_options)  # , theme="blue"
+                    grid_return = AgGrid(
+                        suggestion_df,
+                        grid_options,
+                        columns_auto_size_mode=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+                    )  # , theme="blue"
 
                     # st.write(df3["評價標題的結論"][i])
                     # msg = ast.literal_eval(df3["評價標題的結論"][i])
