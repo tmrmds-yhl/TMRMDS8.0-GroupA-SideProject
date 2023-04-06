@@ -98,6 +98,7 @@ def main():
             "人文": ["文學", "社會科學"],
             "行銷": ["文案", "數位行銷", "社群行銷", "數據分析"],
             "程式": [
+                "資料科學",
                 "區塊鏈",
                 "量化分析",
                 "程式理財",
@@ -111,7 +112,6 @@ def main():
                 "程式語言",
                 "遊戲開發",
                 "軟體程式開發與維護",
-                "資料科學",
                 "AI",
                 "人工智慧",
             ],
@@ -136,6 +136,7 @@ def main():
         topic = st.selectbox(
             "您想學習的主題",
             [
+                "程式",
                 "音樂",
                 "語言",
                 "攝影",
@@ -143,7 +144,6 @@ def main():
                 "設計",
                 "人文",
                 "行銷",
-                "程式",
                 "投資理財",
                 "職場技能",
                 "手作",
@@ -308,7 +308,7 @@ def main():
         df3 = df2.drop(dele)
 
         # attach ChatGPT
-        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
+        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
         df3 = df3.reset_index()
         msg = "現在有%d門課程如下：" % (df3.shape[0])
         for iCourse in range(df3.shape[0]):
@@ -321,7 +321,7 @@ def main():
         if st.session_state.result["level"] is not "":
             msg += f"""期待學習{st.session_state.result["level"]}程度的課程，"""
         if st.session_state.result["others"] is not "":
-            msg += f"""同時該同學也有要求：「{st.session_state.result["others"]}，」。"""
+            msg += f"""同時該同學也有要求：「{st.session_state.result["others"]}」，"""
         msg += "請幫他從上述課程中，推薦三門、並按照推薦順序排列，回傳課程序號，並告訴我各自的原因。"
         st.write(msg)
         response = openai.ChatCompletion.create(
@@ -341,6 +341,7 @@ def main():
         #     "2. 第1門課程評價次高，且適合初學者，能夠讓學員對Azure操作有基礎認識，內容清晰易懂，且完整且詳細，又入門機器學習。",
         #     "3. 第2門課程評價稍低，但仍有不少學員認為是一個很棒的入門課程，內容豐富多元，對初學者來說有些部分可能會覺得深奧，但整體而言是很棒的課程。",
         # ]
+
         comment_content = list(filter(None, comment_content))  # Trim string list
 
         # 篩選出符合條件的課程，利用課程的 index
