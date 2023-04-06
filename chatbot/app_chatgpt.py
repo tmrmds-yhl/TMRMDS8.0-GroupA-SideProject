@@ -10,8 +10,6 @@ import openai
 from st_aggrid import AgGrid, DataReturnMode, GridUpdateMode, GridOptionsBuilder
 
 
-
-
 html_temp = """
 		<div padding:10px;border-radius:10px">
 		<img src="https://imgur.com/ma0W5jF.jpg" style="width: 500px;padding-left: 60px;">
@@ -45,10 +43,10 @@ def main():
     )
 
     # read data
-    df = pd.read_csv("C:\\Users\\Jye-li\\OneDrive\\桌面\\碩一下\\TMR\\Side_project\\Course_info\\course_total.csv")
-    # df = pd.read_csv(
-    #     "/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/course_total.csv"
-    # )
+    # df = pd.read_csv("C:\\Users\\Jye-li\\OneDrive\\桌面\\碩一下\\TMR\\Side_project\\Course_info\\course_total.csv")
+    df = pd.read_csv(
+        "/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/course_total.csv"
+    )
 
     # 把 df 裡面的文字刪掉，只保留數字
     df["評價星等"] = df["評價星等"].replace(" Stars", "", regex=True).astype(float)
@@ -243,7 +241,7 @@ def main():
         df3 = df2.drop(dele)
 
         # attach ChatGPT
-        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
+        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
         df3 = df3.reset_index()
         st.write(df3)
         msg = "現在有%d門課程如下：" % (df3.shape[0])
@@ -263,16 +261,13 @@ def main():
         comment_content = comment_content.split("\n")
         # comment_content = ["推薦順序：第3門、第1門、第2門。", "","原因：","1. 第3門課程評價最高，且學員反應課程內容豐富且實用性高，對工作有很大的幫助，教學內容從理論到實踐都很完整，物超所值。","2. 第1門課程評價次高，且適合初學者，能夠讓學員對Azure操作有基礎認識，內容清晰易懂，且完整且詳細，又入門機器學習。","3. 第2門課程評價稍低，但仍有不少學員認為是一個很棒的入門課程，內容豐富多元，對初學者來說有些部分可能會覺得深奧，但整體而言是很棒的課程。"]
         # st.write(comment_content)
-        st.success(comment_content[0]) # 推薦順序: ...
+        st.success(comment_content[0])  # 推薦順序: ...
         reason = [comment_content[3], comment_content[4], comment_content[5]]
-
 
         # 篩選出符合條件的課程，利用課程的 index
         suggests = [int(s) - 1 for s in re.findall(r"\d+", comment_content[0])]
         df3 = df3.iloc[suggests, :]
         advices = st.selectbox("推薦的課程", (df3["課程名稱"].to_numpy()))  # 讀進df當中的課程名稱當作選項
-        
-
 
         # 重置 df3 的 index，並刪除用不到的欄位
         df3 = df3.reset_index()
@@ -284,25 +279,29 @@ def main():
             # st.write(df3["課程名稱"].to_numpy())
 
             if advices == df3["課程名稱"][i]:
-                
                 course_comment = []
                 st.success(reason[i])  # 呈現推薦原因
 
                 # 根據有無課程評價選擇呈現的內容
                 # 有課程評價 len > 1
                 if len(df3["評價標題的結論"]) > 1:
-                    
                     summary = ast.literal_eval(df3["評價標題的結論"][i])
                     for j in suggests:
                         course_comment.append(summary[j])
-                    
-                    suggestion_dict = {"課程評價", course_comment}
+                    suggestion_dict = {"課程評價": course_comment}
                     suggestion_df = pd.DataFrame.from_dict(suggestion_dict)
 
                     options_builder = GridOptionsBuilder.from_dataframe(suggestion_df)
-                    options_builder.configure_default_column(groupable = True, value = True, enableRowGroup = True, aggFunc = "sum", editable = True, autoHeight = True)
+                    options_builder.configure_default_column(
+                        groupable=True,
+                        value=True,
+                        enableRowGroup=True,
+                        aggFunc="sum",
+                        editable=True,
+                        autoHeight=True,
+                    )
                     grid_options = options_builder.build()
-                    grid_return = AgGrid(suggestion_df, grid_options, theme = "blue")
+                    grid_return = AgGrid(suggestion_df, grid_options)  # , theme="blue"
 
                     # st.write(df3["評價標題的結論"][i])
                     # msg = ast.literal_eval(df3["評價標題的結論"][i])
@@ -310,10 +309,9 @@ def main():
 
                 # 無課程評價 len == 1
                 elif len(df3["評價標題的結論"]) == 1:
-                    
                     st.warning("該課程無相關評價")
                     # st.write("該課程無相關評價")
-        
+
         # 把推薦課程序號、原因、課程評價整理成一個表格呈現
         # course_comment = []
         # for i in suggests:
@@ -328,10 +326,8 @@ def main():
         # grid_options = options_builder.build()
         # grid_return = AgGrid(suggestion_df, grid_options, theme = "blue")
 
-            # 有些沒有原始評價的課程，其課程評價結論的 list 只會有一個元素 (-> "我無法回答這個問題...")
-            # 之後如果要把評價結論一列一列呈現的話要注意! (也許可用 try except 功能)
-
-
+        # 有些沒有原始評價的課程，其課程評價結論的 list 只會有一個元素 (-> "我無法回答這個問題...")
+        # 之後如果要把評價結論一列一列呈現的話要注意! (也許可用 try except 功能)
 
         # 點擊重新篩選會執行firstPage，回到第1頁輸入課程的部分
         st.button("重新篩選", on_click=firstPage)
