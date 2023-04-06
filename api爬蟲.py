@@ -103,7 +103,7 @@ def course_searching(search):
 
     for i in range(courseN):
         collect_comments(main_comment, sub_comment, will_learn, course_id[i])
-        print(course_id[i])
+        #print(course_id[i])
 
     course=pd.DataFrame({
         "課程名稱":course_name,
@@ -120,3 +120,4 @@ def course_searching(search):
 
 if __name__ == '__main__':
     course_searching(search)
+    
