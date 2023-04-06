@@ -35,14 +35,11 @@ def main():
     font-size: 18px;
     font-weight: 600;
 	padding-bottom: 10px;
-
     padding-top: 10px;
 	}
-
 	.st-el {
     background-color: rgb(109 194 231);
 	}
-
 	</style>
 	""",
         unsafe_allow_html=True,
@@ -51,7 +48,7 @@ def main():
     # read data
     # df = pd.read_csv("C:\\Users\\Jye-li\\OneDrive\\桌面\\碩一下\\TMR\\Side_project\\Course_info\\course_total.csv")
     df = pd.read_csv(
-        "/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/course_total.csv"
+        "./project/course_total.csv"
     )
 
     # 把 df 裡面的文字刪掉，只保留數字
@@ -157,7 +154,7 @@ def main():
             )
             st.markdown("---")
         if st.session_state.course is not "" and st.session_state.needs is not "":
-            others = st.text_input("若有其他需求，請輸入")
+            others = st.text_input("請輸入其他需求，若無請填寫「無」，並按Enter")
 
         # 把使用者輸入的條件儲存起來
         result = {
@@ -175,7 +172,8 @@ def main():
         }
         st.session_state.result = result  # 把result存在session state裡面
         # st.write(st.session_state.result)
-        st.button("開始篩選", on_click=nextPage)  # 點擊提交之後會執行nextpage的function
+        if others is not "":
+            st.button("開始篩選", on_click=nextPage)  # 點擊提交之後會執行nextpage的function
 
     ## Page 1
     elif st.session_state.page == 2:
