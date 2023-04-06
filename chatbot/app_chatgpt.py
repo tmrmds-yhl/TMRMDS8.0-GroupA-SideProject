@@ -140,18 +140,15 @@ def main():
 
         st.session_state.needs = needs
         st.session_state.course = course
-        if course is not "":
+        if course is not "" and needs is not "":
             st.button("提交", on_click=nextPage)  # 點擊提交之後會執行nextpage的function
     if st.session_state.page == 1:  # 第2頁
-        # read data
-        course_name = (
-            "./project/TMRMDS8.0-GroupA-SideProject/Hahow全課程/"
-            + st.session_state.course
-            + ".csv"
-        )
+
+         # read data
+        course_name = "./project/TMRMDS8.0-GroupA-SideProject/"+st.session_state.course+"課程_first_10.csv"
         df = pd.read_csv(
             course_name
-            # "/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/temp/course_total.csv"
+            #"/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/temp/course_total.csv"
         )
 
         if st.session_state.course is not "" and "教材" in st.session_state.needs:
@@ -236,6 +233,10 @@ def main():
 
     ## Page 1
     elif st.session_state.page == 2:
+        course_name = "./project/TMRMDS8.0-GroupA-SideProject/"+st.session_state.course+"課程_first_10.csv"
+        df = pd.read_csv(
+            course_name
+        )
         # st.write(st.session_state.result)
         df2 = df
 
@@ -305,12 +306,12 @@ def main():
         df3 = df2.drop(dele)
 
         # attach ChatGPT
-        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
+        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
         df3 = df3.reset_index()
         msg = "現在有%d門課程如下：" % (df3.shape[0])
         for iCourse in range(df3.shape[0]):
             msg += str(
-                f"""\n\n第{iCourse+1}門評價為{df3['評價星等'][iCourse]}/5，{df3['價格'][iCourse]}元、總時長為{df3['總影片時長'][iCourse]}分鐘，觀看人數為{df3['觀看數'][iCourse]}人，{df3['評價標題的結論'][iCourse].replace('[', '').replace(']', '').replace("'",'').replace("。, ", "，", 2)}"""
+                f"""\n\n第{iCourse+1}門評價為{df3['評價星等'][iCourse]}/5，{df3['價格'][iCourse]}元、總時長為{df3['總影片時長'][iCourse]}分鐘，觀看人數為{df3['觀看數'][iCourse]}人，{df3['評論標題的結論'][iCourse].replace('[', '').replace(']', '').replace("'",'').replace("。, ", "，", 2)}"""
             )
         msg += f"""\n\n 現有一位同學想要學習{st.session_state.course}，"""
         if st.session_state.result["skill"] is not "":
