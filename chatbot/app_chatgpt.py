@@ -74,7 +74,7 @@ def main():
         st.session_state.page = 0
 
     # 宣告變數為全域變數
-    global skill, level, hw, speed, interaction, price, result, Ttime, others, comment, student_num
+    global skill, level, hw, speed, interaction, price, result, Ttime, others, comment, student_num, course
     skill = ""
     level = ""
     hw = ""
@@ -87,6 +87,7 @@ def main():
     others = ""
     comment = ""
     student_num = ""
+    course = ""
 
     ## Page 0
     if st.session_state.page == 0:  # 第1頁
@@ -247,14 +248,21 @@ def main():
         df3 = df2.drop(dele)
 
         # attach ChatGPT
-        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
+        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
         df3 = df3.reset_index()
         msg = "現在有%d門課程如下：" % (df3.shape[0])
         for iCourse in range(df3.shape[0]):
             msg += str(
                 f"""\n\n第{iCourse+1}門評價為{df3['評價星等'][iCourse]}/5，{df3['價格'][iCourse]}元、總時長為{df3['總影片時長'][iCourse]}分鐘，觀看人數為{df3['觀看數'][iCourse]}人，且{df3['評價標題的結論'][iCourse].replace('[', '').replace(']', '').replace("'",'').replace("。, ", "，又", 2)}"""
             )
-        msg += f"""\n\n 現有一位同學要求為：「{st.session_state.result['others']}」，請幫他從上述課程中，推薦三門、並按照推薦順序排列，回傳課程序號，並告訴我各自的原因。"""
+
+        st.write(type(course))
+        st.write(st.session_state.result["others"])
+
+        msg += f"""\n\n 現有一位同學想要學習{st.session_state.course}，要求為：「{st.session_state.result['others']}」，他對這個技能{st.session_state.result["skill"]}，期待學習{st.session_state.result["level"]}程度的課程。"""
+
+        msg += "\n\n 請幫他從上述課程中，推薦三門、並按照推薦順序排列，回傳課程序號，並告訴我各自的原因。"
+        st.write(msg)
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             max_tokens=500,
