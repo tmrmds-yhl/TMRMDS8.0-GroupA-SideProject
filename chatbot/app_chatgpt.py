@@ -89,7 +89,7 @@ def main():
     ## Page 0
     if st.session_state.page == 0:  # 第1頁
         needs = st.multiselect("請勾選您在意的課程面向", ["教材", "講師", "價格", "時間"])
-    	level_two_options = {
+        level_two_options = {
 			"音樂" : ["樂器", "音樂創作", "音樂理論","人聲","DJ"],
 			"語言" : ["英文","日文","韓文","西班牙文","歐洲語言","翻譯"],
 			"攝影" : ["影像創作","商業攝影","後製剪輯","動態攝影","影視創作","攝影理論"],
@@ -103,10 +103,9 @@ def main():
 			"手作": ["模型","刺繡","篆刻","氣球","手工印刷","手工書","手作小物"],
 			"生活品味": ["運動","寵物","烹飪料理與甜點","數學","心靈成長與教育","壓力舒緩","護膚保養與化妝","親子教育","居家","靈性發展","花草園藝"]
 		}
-
-		topic = "程式"
-		topic = st.selectbox("您想學習的主題", ["音樂", "語言", "攝影","藝術","設計","人文","行銷","程式","投資理財","職場技能","手作","生活品味"])
-		course = st.selectbox("您想學習的面向", level_two_options[topic])
+        topic = "程式"
+        topic = st.selectbox("您想學習的主題", ["音樂", "語言", "攝影","藝術","設計","人文","行銷","程式","投資理財","職場技能","手作","生活品味"])
+        course = st.selectbox("您想學習的面向", level_two_options[topic])
         
         st.session_state.needs = needs
         st.session_state.course = course
