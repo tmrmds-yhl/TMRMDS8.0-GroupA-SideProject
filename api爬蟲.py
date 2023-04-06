@@ -21,7 +21,7 @@ def collect_comments(main_comment, sub_comment, will_learn, id):
                                 'AppleWebKit/537.36 (KHTML, like Gecko) '
                                 'Chrome/59.0.3071.115 Safari/537.36'}
     resp_feedbacks = requests.get(url, headers=headers).json()
-
+    #print(json.dumps(resp_feedbacks, indent = 2))
     try:
         will_learn.append(resp_feedbacks["willLearn"])
     except:
@@ -116,7 +116,7 @@ def course_searching(search):
         "評論標題":main_comment,
         "評論內容":sub_comment})
 
-    course.to_csv(f'Hahow{search}課程.csv', encoding = 'UTF-8-sig')
+    course.to_csv(f'{search}.csv', encoding = 'UTF-8-sig')
 
 if __name__ == '__main__':
     course_searching(search)
