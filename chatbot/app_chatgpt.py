@@ -72,6 +72,7 @@ def main():
     student_num = ""
     course = ""
     df = ""
+
     ## Page 0
     if st.session_state.page == 0:  # 第1頁
         needs = st.multiselect("請勾選您在意的課程面向", ["教材", "講師", "價格", "時間"])
@@ -143,12 +144,13 @@ def main():
         if course is not "" and needs is not "":
             st.button("提交", on_click=nextPage)  # 點擊提交之後會執行nextpage的function
     if st.session_state.page == 1:  # 第2頁
+        # read data
+        # course_name = "./project/TMRMDS8.0-GroupA-SideProject/"+st.session_state.course+"課程_first_10.csv"
+        course_name = "/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/資料科學課程_first_10.csv"
 
-         # read data
-        course_name = "./project/TMRMDS8.0-GroupA-SideProject/"+st.session_state.course+"課程_first_10.csv"
         df = pd.read_csv(
             course_name
-            #"/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/temp/course_total.csv"
+            # "/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/temp/course_total.csv"
         )
 
         if st.session_state.course is not "" and "教材" in st.session_state.needs:
@@ -233,10 +235,14 @@ def main():
 
     ## Page 1
     elif st.session_state.page == 2:
-        course_name = "./project/TMRMDS8.0-GroupA-SideProject/"+st.session_state.course+"課程_first_10.csv"
-        df = pd.read_csv(
-            course_name
+        course_name = (
+            "./project/TMRMDS8.0-GroupA-SideProject/"
+            + st.session_state.course
+            + "課程_first_10.csv"
         )
+        course_name = "/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/資料科學課程_first_10.csv"
+
+        df = pd.read_csv(course_name)
         # st.write(st.session_state.result)
         df2 = df
 
@@ -306,7 +312,7 @@ def main():
         df3 = df2.drop(dele)
 
         # attach ChatGPT
-        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
+        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
         df3 = df3.reset_index()
         msg = "現在有%d門課程如下：" % (df3.shape[0])
         for iCourse in range(df3.shape[0]):
@@ -320,8 +326,15 @@ def main():
             msg += f"""期待學習{st.session_state.result["level"]}程度的課程，"""
         if st.session_state.result["others"] is not "":
             msg += f"""同時該同學也有要求：「{st.session_state.result["others"]}」，"""
-        msg += "請幫他從上述課程中，推薦三門、並按照推薦順序排列，回傳課程序號，並告訴我各自的原因。"
-        st.write(msg)
+        msg += """請幫他從上述課程中，推薦三門、按順序排列，回傳課程序號，並告訴我各自的原因，並按照以下格式：
+            "推薦順序：第3門、第1門、第2門。",
+            "",
+            "原因：",
+            "1. 第3門課程評價最高，且學員反應課程內容豐富且實用性高，對工作有很大的幫助，教學內容從理論到實踐都很完整，物超所值。",
+            "2. 第1門課程評價次高，且適合初學者，能夠讓學員對Azure操作有基礎認識，內容清晰易懂，且完整且詳細，又入門機器學習。",
+            "3. 第2門課程評價稍低，但仍有不少學員認為是一個很棒的入門課程，內容豐富多元，對初學者來說有些部分可能會覺得深奧，但整體而言是很棒的課程。" 
+            """
+
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             max_tokens=500,
@@ -382,8 +395,8 @@ def main():
 
                 # 根據有無課程評價選擇呈現的內容
                 # 有課程評價 len > 1
-                if len(df3["評價標題的結論"]) > 1:
-                    summary = ast.literal_eval(df3["評價標題的結論"][i])
+                if len(df3["評論標題的結論"]) > 1:
+                    summary = ast.literal_eval(df3["評論標題的結論"][i])
                     for j in range(3):
                         course_comment.append(summary[j])
                     suggestion_dict = {"課程評價": course_comment}
@@ -405,19 +418,19 @@ def main():
                         columns_auto_size_mode=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
                     )  # , theme="blue"
 
-                    # st.write(df3["評價標題的結論"][i])
-                    # msg = ast.literal_eval(df3["評價標題的結論"][i])
+                    # st.write(df3["評論標題的結論"][i])
+                    # msg = ast.literal_eval(df3["評論標題的結論"][i])
                     # st.write(msg)
 
                 # 無課程評價 len == 1
-                elif len(df3["評價標題的結論"]) == 1:
+                elif len(df3["評論標題的結論"]) == 1:
                     st.warning("該課程無相關評價")
                     # st.write("該課程無相關評價")
 
         # 把推薦課程序號、原因、課程評價整理成一個表格呈現
         # course_comment = []
         # for i in suggests:
-        #     course_comment.append(df3["評價標題的結論"][i])
+        #     course_comment.append(df3["評論標題的結論"][i])
 
         # suggestion_dict = {"課程編號": suggests, "推薦原因": [comment_content[3], comment_content[4], comment_content[5]], "課程評價": course_comment}
         # suggestion_df = pd.DataFrame.from_dict(suggestion_dict)
