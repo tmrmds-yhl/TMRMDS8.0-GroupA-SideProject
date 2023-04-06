@@ -140,12 +140,11 @@ def main():
 
     # read data
         
-        course_name = "./project/TMRMDS8.0-GroupA-SideProject/Hahow"+course+"課程.csv"
+        course_name = "./project/TMRMDS8.0-GroupA-SideProject/Hahow全課程/"+course+".csv"
         df = pd.read_csv(
             course_name
             #"/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/temp/course_total.csv"
         )
-
         st.session_state.needs = needs
         st.session_state.course = course
         if course is not "":
