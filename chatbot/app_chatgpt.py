@@ -35,14 +35,11 @@ def main():
     font-size: 18px;
     font-weight: 600;
 	padding-bottom: 10px;
-
     padding-top: 10px;
 	}
-
 	.st-el {
     background-color: rgb(109 194 231);
 	}
-
 	</style>
 	""",
         unsafe_allow_html=True,
@@ -51,7 +48,7 @@ def main():
     # read data
     # df = pd.read_csv("C:\\Users\\Jye-li\\OneDrive\\桌面\\碩一下\\TMR\\Side_project\\Course_info\\course_total.csv")
     df = pd.read_csv(
-        "/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/course_total.csv"
+        "./project/course_total.csv"
     )
 
     # 把 df 裡面的文字刪掉，只保留數字
@@ -74,7 +71,7 @@ def main():
         st.session_state.page = 0
 
     # 宣告變數為全域變數
-    global skill, level, hw, speed, interaction, price, result, Ttime, others, comment, student_num
+    global skill, level, hw, speed, interaction, price, result, Ttime, others, comment, student_num, course
     skill = ""
     level = ""
     hw = ""
@@ -87,6 +84,7 @@ def main():
     others = ""
     comment = ""
     student_num = ""
+    course = ""
 
     ## Page 0
     if st.session_state.page == 0:  # 第1頁
@@ -156,7 +154,7 @@ def main():
             )
             st.markdown("---")
         if st.session_state.course is not "" and st.session_state.needs is not "":
-            others = st.text_input("若有其他需求，請輸入")
+            others = st.text_input("請輸入其他需求，若無請填寫「無」，並按Enter")
 
         # 把使用者輸入的條件儲存起來
         result = {
@@ -174,7 +172,8 @@ def main():
         }
         st.session_state.result = result  # 把result存在session state裡面
         # st.write(st.session_state.result)
-        st.button("開始篩選", on_click=nextPage)  # 點擊提交之後會執行nextpage的function
+        if others is not "":
+            st.button("開始篩選", on_click=nextPage)  # 點擊提交之後會執行nextpage的function
 
     ## Page 1
     elif st.session_state.page == 2:
@@ -247,14 +246,18 @@ def main():
         df3 = df2.drop(dele)
 
         # attach ChatGPT
-        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
+        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
         df3 = df3.reset_index()
         msg = "現在有%d門課程如下：" % (df3.shape[0])
         for iCourse in range(df3.shape[0]):
             msg += str(
                 f"""\n\n第{iCourse+1}門評價為{df3['評價星等'][iCourse]}/5，{df3['價格'][iCourse]}元、總時長為{df3['總影片時長'][iCourse]}分鐘，觀看人數為{df3['觀看數'][iCourse]}人，且{df3['評價標題的結論'][iCourse].replace('[', '').replace(']', '').replace("'",'').replace("。, ", "，又", 2)}"""
             )
-        msg += f"""\n\n 現有一位同學要求為：「{st.session_state.result['others']}」，請幫他從上述課程中，推薦三門、並按照推薦順序排列，回傳課程序號，並告訴我各自的原因。"""
+
+        msg += f"""\n\n 現有一位同學想要學習{st.session_state.course}，他對這個技能{st.session_state.result["skill"]}，期待學習{st.session_state.result["level"]}程度的課程。"""
+        msg += f"""\n\n 同時該同學也有要求：「{st.session_state.result["others"]}」。"""
+        msg += "\n\n 請幫他從上述課程中，推薦三門、並按照推薦順序排列，回傳課程序號，並告訴我各自的原因。"
+        st.write(msg)
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             max_tokens=500,
