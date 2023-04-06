@@ -7,19 +7,26 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import datetime
 
-search = '英文'
+search = '機器學習'
 
-def collect_comments(main_comment, sub_comment, id):
+def collect_comments(main_comment, sub_comment, will_learn, id):
     page = 0
     title = []
     description = []
+
+    url = f'https://api.hahow.in/api/courses/{id}'
+    #url = f'https://api.hahow.in/api/courses/597df7e2acc137070007013c'
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                                'AppleWebKit/537.36 (KHTML, like Gecko) '
+                                'Chrome/59.0.3071.115 Safari/537.36'}
+    resp_feedbacks = requests.get(url, headers=headers).json()
+
+    will_learn.append(resp_feedbacks["willLearn"])
+
     while True:
         url = f'https://api.hahow.in/api/courses/{id}/feedbacks?limit=30&page={page}'
         #url = f'https://api.hahow.in/api/courses/597df7e2acc137070007013c/feedbacks?limit=30&page={page}'
-
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                                    'AppleWebKit/537.36 (KHTML, like Gecko) '
-                                    'Chrome/59.0.3071.115 Safari/537.36'}
         resp_feedbacks = requests.get(url, headers=headers).json()
         
         if resp_feedbacks == []:
@@ -89,9 +96,10 @@ def course_searching(search):
 
     main_comment = []
     sub_comment = []
+    will_learn = []
 
     for i in range(courseN):
-        collect_comments(main_comment, sub_comment, course_id[i])
+        collect_comments(main_comment, sub_comment, will_learn, course_id[i])
 
     course=pd.DataFrame({
         "課程名稱":course_name,
@@ -100,6 +108,7 @@ def course_searching(search):
         "總影片時長":video_length,
         "觀看數":viewers,
         "價格":pricings,
+        "課程簡介":will_learn,
         "評論標題":main_comment,
         "評論內容":sub_comment})
 
