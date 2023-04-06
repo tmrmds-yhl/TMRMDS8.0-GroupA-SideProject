@@ -44,20 +44,6 @@ def main():
 	""",
         unsafe_allow_html=True,
     )
-    # read data
-    # df = pd.read_csv("C:\\Users\\Jye-li\\OneDrive\\桌面\\碩一下\\TMR\\Side_project\\Course_info\\course_total.csv")
-    df = pd.read_csv(
-        # "./chatbot/course_total.csv"
-        "/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/temp/course_total.csv"
-    )
-
-    # 把 df 裡面的文字刪掉，只保留數字
-    df["評價星等"] = df["評價星等"].replace(" Stars", "", regex=True).astype(float)
-    df.總影片時長 = df.總影片時長.str.extract("(\d+)").astype(float)
-    df.評論數 = df.評論數.str.extract("(\d+)").astype(float)
-    df.觀看數 = df.觀看數.str.extract("(\d+)").astype(float)
-    # 把 df 裡面價格的 "NT$"及","皆取代為空白
-    df["價格"] = df["價格"].replace("NT|[\$,]", "", regex=True).astype(float)
 
     if "page" not in st.session_state:
         st.session_state.page = (
@@ -71,7 +57,7 @@ def main():
         st.session_state.page = 0
 
     # 宣告變數為全域變數
-    global skill, level, hw, speed, interaction, price, result, Ttime, others, comment, student_num, course
+    global skill, level, hw, speed, interaction, price, result, Ttime, others, comment, student_num, course, df
     skill = ""
     level = ""
     hw = ""
@@ -85,7 +71,7 @@ def main():
     comment = ""
     student_num = ""
     course = ""
-
+    df = ""
     ## Page 0
     if st.session_state.page == 0:  # 第1頁
         needs = st.multiselect("請勾選您在意的課程面向", ["教材", "講師", "價格", "時間"])
@@ -151,6 +137,14 @@ def main():
             ],
         )
         course = st.selectbox("您想學習的面向", level_two_options[topic])
+
+    # read data
+        
+        course_name = "./project/TMRMDS8.0-GroupA-SideProject/Hahow"+course+"課程.csv"
+        df = pd.read_csv(
+            course_name
+            #"/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/temp/course_total.csv"
+        )
 
         st.session_state.needs = needs
         st.session_state.course = course
