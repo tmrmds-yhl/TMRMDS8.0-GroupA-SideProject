@@ -19,5 +19,5 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
 resp_categories = requests.get(url, headers=headers).json()
 
 for main in range(len(resp_categories)):
-    for sub in range(len(resp_categories[main]['subGroups'])):
+    for sub in range(len(resp_categories[main]['subGroups'])-1):
         course_searching(resp_categories[main]['subGroups'][sub]['title'])
