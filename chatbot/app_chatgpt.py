@@ -138,18 +138,19 @@ def main():
         )
         course = st.selectbox("您想學習的面向", level_two_options[topic])
 
-    # read data
-        
-        course_name = "./project/TMRMDS8.0-GroupA-SideProject/Hahow全課程/"+course+".csv"
-        df = pd.read_csv(
-            course_name
-            #"/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/temp/course_total.csv"
-        )
         st.session_state.needs = needs
         st.session_state.course = course
         if course is not "":
             st.button("提交", on_click=nextPage)  # 點擊提交之後會執行nextpage的function
     if st.session_state.page == 1:  # 第2頁
+
+         # read data
+        course_name = "./project/TMRMDS8.0-GroupA-SideProject/Hahow全課程/"+st.session_state.course+".csv"
+        df = pd.read_csv(
+            course_name
+            #"/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/temp/course_total.csv"
+        )
+
         if st.session_state.course is not "" and "教材" in st.session_state.needs:
             st.subheader("教材")
             skill = st.select_slider(
