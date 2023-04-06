@@ -44,11 +44,11 @@ def main():
 	""",
         unsafe_allow_html=True,
     )
-
     # read data
     # df = pd.read_csv("C:\\Users\\Jye-li\\OneDrive\\桌面\\碩一下\\TMR\\Side_project\\Course_info\\course_total.csv")
     df = pd.read_csv(
-        "./project/course_total.csv"
+        # "./chatbot/course_total.csv"
+        "/Users/uscer/Desktop/TMR/sideProject/TMRMDS8.0-GroupA-SideProject/temp/course_total.csv"
     )
 
     # 把 df 裡面的文字刪掉，只保留數字
@@ -89,7 +89,69 @@ def main():
     ## Page 0
     if st.session_state.page == 0:  # 第1頁
         needs = st.multiselect("請勾選您在意的課程面向", ["教材", "講師", "價格", "時間"])
-        course = st.text_input("請輸入您想學的課程並按Enter")
+        level_two_options = {
+            "音樂": ["樂器", "音樂創作", "音樂理論", "人聲", "DJ"],
+            "語言": ["英文", "日文", "韓文", "西班牙文", "歐洲語言", "翻譯"],
+            "攝影": ["影像創作", "商業攝影", "後製剪輯", "動態攝影", "影視創作", "攝影理論"],
+            "藝術": ["電腦繪圖", "角色設計", "手寫字", "繪畫與插畫", "字體設計", "素描", "色彩學", "表演藝術"],
+            "設計": ["動態設計", "平面設計", "應用設計", "網頁設計", "介面設計", "設計理論"],
+            "人文": ["文學", "社會科學"],
+            "行銷": ["文案", "數位行銷", "社群行銷", "數據分析"],
+            "程式": [
+                "資料科學",
+                "區塊鏈",
+                "量化分析",
+                "程式理財",
+                "程式思維",
+                "程式入門",
+                "網站架設",
+                "手機程式開發",
+                "網頁前端",
+                "網頁後端",
+                "資訊安全",
+                "程式語言",
+                "遊戲開發",
+                "軟體程式開發與維護",
+                "AI",
+                "人工智慧",
+            ],
+            "投資理財": ["理財", "投資觀念", "金融商品", "量化交易", "更多投資理財", "比特幣"],
+            "職場技能": ["資料彙整", "效率提升", "職場溝通", "文書處理", "求職創業", "獨立接案", "產品設計", "個人品牌經營"],
+            "手作": ["模型", "刺繡", "篆刻", "氣球", "手工印刷", "手工書", "手作小物"],
+            "生活品味": [
+                "運動",
+                "寵物",
+                "烹飪料理與甜點",
+                "數學",
+                "心靈成長與教育",
+                "壓力舒緩",
+                "護膚保養與化妝",
+                "親子教育",
+                "居家",
+                "靈性發展",
+                "花草園藝",
+            ],
+        }
+        topic = "程式"
+        topic = st.selectbox(
+            "您想學習的主題",
+            [
+                "程式",
+                "音樂",
+                "語言",
+                "攝影",
+                "藝術",
+                "設計",
+                "人文",
+                "行銷",
+                "投資理財",
+                "職場技能",
+                "手作",
+                "生活品味",
+            ],
+        )
+        course = st.selectbox("您想學習的面向", level_two_options[topic])
+
         st.session_state.needs = needs
         st.session_state.course = course
         if course is not "":
@@ -246,17 +308,21 @@ def main():
         df3 = df2.drop(dele)
 
         # attach ChatGPT
-        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
+        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
         df3 = df3.reset_index()
         msg = "現在有%d門課程如下：" % (df3.shape[0])
         for iCourse in range(df3.shape[0]):
             msg += str(
-                f"""\n\n第{iCourse+1}門評價為{df3['評價星等'][iCourse]}/5，{df3['價格'][iCourse]}元、總時長為{df3['總影片時長'][iCourse]}分鐘，觀看人數為{df3['觀看數'][iCourse]}人，且{df3['評價標題的結論'][iCourse].replace('[', '').replace(']', '').replace("'",'').replace("。, ", "，又", 2)}"""
+                f"""\n\n第{iCourse+1}門評價為{df3['評價星等'][iCourse]}/5，{df3['價格'][iCourse]}元、總時長為{df3['總影片時長'][iCourse]}分鐘，觀看人數為{df3['觀看數'][iCourse]}人，{df3['評價標題的結論'][iCourse].replace('[', '').replace(']', '').replace("'",'').replace("。, ", "，", 2)}"""
             )
-
-        msg += f"""\n\n 現有一位同學想要學習{st.session_state.course}，他對這個技能{st.session_state.result["skill"]}，期待學習{st.session_state.result["level"]}程度的課程。"""
-        msg += f"""\n\n 同時該同學也有要求：「{st.session_state.result["others"]}」。"""
-        msg += "\n\n 請幫他從上述課程中，推薦三門、並按照推薦順序排列，回傳課程序號，並告訴我各自的原因。"
+        msg += f"""\n\n 現有一位同學想要學習{st.session_state.course}，"""
+        if st.session_state.result["skill"] is not "":
+            msg += f"""他對這個技能{st.session_state.result["skill"]}，"""
+        if st.session_state.result["level"] is not "":
+            msg += f"""期待學習{st.session_state.result["level"]}程度的課程，"""
+        if st.session_state.result["others"] is not "":
+            msg += f"""同時該同學也有要求：「{st.session_state.result["others"]}」，"""
+        msg += "請幫他從上述課程中，推薦三門、並按照推薦順序排列，回傳課程序號，並告訴我各自的原因。"
         st.write(msg)
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -275,6 +341,7 @@ def main():
         #     "2. 第1門課程評價次高，且適合初學者，能夠讓學員對Azure操作有基礎認識，內容清晰易懂，且完整且詳細，又入門機器學習。",
         #     "3. 第2門課程評價稍低，但仍有不少學員認為是一個很棒的入門課程，內容豐富多元，對初學者來說有些部分可能會覺得深奧，但整體而言是很棒的課程。",
         # ]
+
         comment_content = list(filter(None, comment_content))  # Trim string list
 
         # 篩選出符合條件的課程，利用課程的 index
