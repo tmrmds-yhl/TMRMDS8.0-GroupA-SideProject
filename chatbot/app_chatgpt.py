@@ -15,14 +15,12 @@ from st_aggrid import (
     ColumnsAutoSizeMode,
 )
 
-
 html_temp = """
 		<div padding:10px;border-radius:10px">
 		<img src="https://imgur.com/ma0W5jF.jpg" style="width: 500px;padding-left: 60px;">
 		<h4 style="color:black;text-align:center;">by TMR MDS 8.0 Group A </h4>
 		</div>
 		"""
-
 
 def main():
     # st.title("ML Web App with Streamlit")
@@ -312,7 +310,7 @@ def main():
         df3 = df2.drop(dele)
 
         # attach ChatGPT
-        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
+        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
         df3 = df3.reset_index()
         msg = "現在有%d門課程如下：" % (df3.shape[0])
         for iCourse in range(df3.shape[0]):
@@ -330,9 +328,9 @@ def main():
             "推薦順序：第3門、第1門、第2門。",
             "",
             "原因：",
-            "1. 第3門課程評價最高，且學員反應課程內容豐富且實用性高，對工作有很大的幫助，教學內容從理論到實踐都很完整，物超所值。",
-            "2. 第1門課程評價次高，且適合初學者，能夠讓學員對Azure操作有基礎認識，內容清晰易懂，且完整且詳細，又入門機器學習。",
-            "3. 第2門課程評價稍低，但仍有不少學員認為是一個很棒的入門課程，內容豐富多元，對初學者來說有些部分可能會覺得深奧，但整體而言是很棒的課程。" 
+            "1. 第幾門......",
+            "2. 第幾門......",
+            "3. 第幾門......" 
             """
 
         response = openai.ChatCompletion.create(
@@ -384,9 +382,9 @@ def main():
         ]
 
         advices = st.selectbox("推薦的課程", (df3["課程名稱"].to_numpy()))  # 讀進df當中的課程名稱當作選項
+        df3 = df3.reset_index()
 
         for i in range(0, len(df3.index)):
-            # st.write(df3)
             # st.write(df3["課程名稱"].to_numpy())
 
             if advices == df3["課程名稱"][i]:
@@ -397,8 +395,8 @@ def main():
                 # 有課程評價 len > 1
                 if len(df3["評論標題的結論"]) > 1:
                     summary = ast.literal_eval(df3["評論標題的結論"][i])
-                    for j in range(3):
-                        course_comment.append(summary[j])
+                    for j in summary:
+                        course_comment.append(j)
                     suggestion_dict = {"課程評價": course_comment}
                     suggestion_df = pd.DataFrame.from_dict(suggestion_dict)
 
