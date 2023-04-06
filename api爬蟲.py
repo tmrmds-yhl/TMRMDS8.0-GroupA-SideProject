@@ -120,3 +120,4 @@ def course_searching(search):
 
 if __name__ == '__main__':
     course_searching(search)
+    
