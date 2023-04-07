@@ -1,7 +1,7 @@
-
+# REVIEW: 建議將使用者輸入的 content 與其他程式分開來，一樣建議要 validate 再後續執行
 import streamlit as st 
 import streamlit.components.v1 as stc
-import joblib
+# import joblib
 import os
 import numpy as np
 import pandas as pd
@@ -47,7 +47,7 @@ def main():
 
 	# read data
 	#df = pd.read_csv("./project/course_total.csv")
-	df = pd.read_csv("./project/Hahow機器學習課程.csv")
+	df = pd.read_csv("./chatbot/Hahow機器學習課程.csv")
 
 	# 把 df 裡面的文字刪掉，只保留數字
 	#df['評價星等'] = df['評價星等'].replace(' Stars', '', regex=True).astype(float)
@@ -84,6 +84,7 @@ def main():
 		st.session_state.course = course
 		if course is not "":
 			st.button("提交",on_click=nextPage) #點擊提交之後會執行nextpage的function
+	
 	if st.session_state.page == 1:  #第2頁
 		if st.session_state.course is not "" and '教材' in st.session_state.needs:
 			st.subheader("教材")
@@ -118,6 +119,7 @@ def main():
 			others = st.text_input("若有其他需求，請輸入")
 
 		# 把使用者輸入的條件儲存起來
+		# 建議用 class 儲存而非 dictionary
 		result = {'skill':skill,
 		'level':level,
 		'hw':hw,
@@ -137,11 +139,32 @@ def main():
 	## Page 1
 	elif st.session_state.page == 2:
 		#st.write(st.session_state.result)
-		df2 = df
+
+		# 命名不要偷懶喔 XD，如果是要複製請標注 copy 不然有可能會連同 df 一起修改到
+		df2 = df.copy()
 
 		# 初步篩選
 		df3 = df2
 		dele = []
+		st.dataframe(df3) # 學長自己查看用的
+
+		# 篩選直接用 pandas 的 method 即可，舉例:
+		########
+		def user_filter(df):
+			if st.session_state.result['Ttime']:
+				st.dataframe(
+					df2
+					.loc[lambda temp_df: temp_df['總影片時長'].between(
+						st.session_state.result['Ttime'][0], st.session_state.result['Ttime'][1]
+					)]
+				)
+			
+		st.write(st.session_state.result['Ttime'])
+		st.dataframe(
+			df2
+			.pipe(user_filter)
+		)
+		#########
 
 		# 篩影片時長
 		for i in range(0, len(df2.index)):
@@ -213,7 +236,7 @@ def main():
 					#st.write(df3["評價標題"])
 					msg = ast.literal_eval(df3["評論內容"][i])
 
-					jieba.set_dictionary('./project/dict.txt.big')
+					jieba.set_dictionary('./chatbot/dict.txt.big')
 					text = ("".join(msg))
 					cut_text = " ".join(jieba.cut(text))
 					# 因為有很多贅詞，所以只留下形容詞
@@ -227,7 +250,7 @@ def main():
 
 					# 畫出文字雲
 					wordcloud = WordCloud(collocations=False,
-                      font_path='./project/msj.ttf',
+                      font_path='./chatbot/msj.ttf',
                       width=800,
                       height=600,
                       margin=2).generate(adjwords)
