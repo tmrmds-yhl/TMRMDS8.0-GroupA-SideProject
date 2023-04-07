@@ -1,0 +1,11 @@
+pandas
+numpy
+selenium
+webdriver-manager
+openai
+beautifulsoup4
+streamlit
+streamlit-aggrid
+jieba
+wordcloud
+matplotlib
