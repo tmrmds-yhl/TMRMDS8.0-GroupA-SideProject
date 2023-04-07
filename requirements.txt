@@ -9,3 +9,4 @@ streamlit-aggrid
 jieba
 wordcloud
 matplotlib
+joblib
