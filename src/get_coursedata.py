@@ -24,6 +24,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
 resp_courses = requests.get(url, headers=headers).json()
 coursedata = resp_courses["data"]['courseData']
 data = [CourseData(**i) for i in coursedata['products']]
-pd.DataFrame([item.dict() for item in data])
+
+display(pd.DataFrame([item.dict() for item in data]))
 
 # %%
