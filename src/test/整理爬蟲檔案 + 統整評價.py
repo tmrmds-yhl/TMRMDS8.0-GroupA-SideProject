@@ -1,9 +1,11 @@
+#%%
 # Initialize by 紫婕
 # Modified by Yi-Hsiu (YHL) on 2023/03/27
 import pandas as pd
 import ast
 import openai
 import os
+from collections import defaultdict
 
 # 我有重新命名 csv 檔名稱，所以爬蟲儲存檔案時的名稱可能要再修改!
 
@@ -15,6 +17,7 @@ for i in range(10):
     course_name_list.append("course" + str(i + 1) + ".csv")
 
 if os.path.exists('./temp') != True: 
+    # 改用 function: os.mkdir()
     !mkdir temp
 
 path_list = []
@@ -24,28 +27,33 @@ for i in range(10):
         # "./temp/" + course_name_list[i] + ".csv"
     )
 
+# where does course_total.csv come from?
+# was this suppose to be empty?
 course_total = pd.read_csv(
     "./temp/course_total.csv"
 )
 list_of_dict = []
 
+# why 10?
 for i in range(10):
     course_comment = pd.read_csv(path_list[i])
 
-    dict = {}
-    dict["評論標題"] = []
-    dict["評論內容"] = []
+    # 不要覆蓋 built-in objects in python
+    dict_ = defaultdict(list) # defaultdict 很方便，跟你們想要的效果一樣: default value type => list
 
+    # 盡量不要從 loop over dataframe，可以用 vectorize 的做法就用 vectorize 的作法
     for i in range(len(course_comment)):
-        dict["評論標題"].append(course_comment["評論標題"][i])
-        dict["評論內容"].append(course_comment["評論內容"][i])
+        dict_["評論標題"].append(course_comment["評論標題"][i])
+        dict_["評論內容"].append(course_comment["評論內容"][i])
 
-    list_of_dict.append(dict)
+    list_of_dict.append(dict_)
 
+# why insert at index 7?
 course_total.insert(7, column="評價標題與內容", value=list_of_dict)
 
 course_total.to_csv("./course_total.csv")
 
+# 這裡就可以切成不同檔案
 """串 chatgpt
 目前只有針對 "評論標題" 進行分析，
 要再針對 "評論內容" 進行分析
@@ -136,7 +144,10 @@ course_total_api.insert(
     len(course_total_api.columns), column="評價內容的結論", value=comment_content_summary_total
 )
 
+# 這個其他人會無法執行喔
 # 下面這個要跑，才會更新 csv 檔
 course_total_api.to_csv(
     "C:\\Users\\Jye-li\\OneDrive\\桌面\\Course_info\\course_total.csv"
 )
+
+# %%
