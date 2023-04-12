@@ -22,6 +22,7 @@ html_temp = """
 		</div>
 		"""
 
+
 def main():
     # st.title("ML Web App with Streamlit")
     stc.html(html_temp)
@@ -310,7 +311,7 @@ def main():
         df3 = df2.drop(dele)
 
         # attach ChatGPT
-        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
+        openai.api_key = "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"  # YHL's api key, should be changed to TMR's
         df3 = df3.reset_index()
         msg = "現在有%d門課程如下：" % (df3.shape[0])
         for iCourse in range(df3.shape[0]):
@@ -368,7 +369,6 @@ def main():
             .replace("第{}門".format(suggests[2] + 1), "\n\n" + df3["課程名稱"][2])
         )
 
-        st.success(comment_content[0])  # 推薦順序: ...
         reason = [
             comment_content[-3].replace(
                 "第{}門".format(suggests[0] + 1), df3["課程名稱"][0] + "：\n\n"
@@ -380,9 +380,17 @@ def main():
                 "第{}門".format(suggests[2] + 1), df3["課程名稱"][2] + "：\n\n"
             ),
         ]
+        st.session_state.df3 = df3
+        st.session_state.reason = reason
+        st.session_state.comment_content = comment_content
+        st.button("查看結果", on_click=nextPage)
 
+    elif st.session_state.page == 3:
+        df3 = st.session_state.df3.reset_index()
+        comment_content = st.session_state.comment_content
+        reason = st.session_state.reason
+        st.success(comment_content[0])  # 推薦順序: ...
         advices = st.selectbox("推薦的課程", (df3["課程名稱"].to_numpy()))  # 讀進df當中的課程名稱當作選項
-        df3 = df3.reset_index()
 
         for i in range(0, len(df3.index)):
             # st.write(df3["課程名稱"].to_numpy())
